@@ -67,7 +67,7 @@
                     if(bally > usery && bally < (usery + padheight)) {
                         ballSpeedx = -ballSpeedx;
                         var deltay = bally - (usery + (padheight / 2));
-                        ballSpeedy = deltay;
+                        ballSpeedy = deltay / 3;
                     } else {
                         if(ballx <= ballSize) {
                             ballReset();
