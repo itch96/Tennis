@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tennis</title>
+        <style>
+            #gameCanvas {
+                border-radius: 20px;
+                margin: 10vh auto;
+                display: block;
+                box-shadow: 0px 0px 20px black;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id='gameCanvas' width="800" height="600"></canvas>
+        <script>
+            var canvas, canvasContext;
+            var screenWidth, screenHeight;
+            var fps;
+            var ballx, bally, ballSpeedx, ballSpeedy, ballSize;
+            var padwidth, padheight;
+            var userx, usery, compx, compy;
+            var userScore, compScore;
+            var userScorex, userScorey, compScorex, compScorey;
+
+            window.onload = function() {
+                canvas = document.getElementById('gameCanvas');
+                canvasContext = canvas.getContext('2d');
+                screenWidth = canvas.width;
+                screenHeight = canvas.height;
+
+                ballx = 10;
+                bally = 10;
+                ballSpeedx = 5;
+                ballSpeedy = 3;
+                ballSize = 10;
+
+                padwidth = 10;
+                padheight = 100;
+
+                userx = 10;
+                usery = 200;
+                compx = 780;
+                compy = 200;
+
+                userScore = 0;
+                compScore = 0;
+                userScorex = 170;
+                userScorey = 50;
+                compScorex = 570;
+                compScorey = 50;
+
+                fps = 60;
+                setInterval(draw, 1000 / fps);
+
+                canvas.addEventListener('mousemove', function(event) {
+                    var mouseLoc = calculateMousePos(event);
+                    usery = mouseLoc.y - (padheight / 2);
+                });
+            }
+
+            function draw() {
+                ballx += ballSpeedx;
+                bally += ballSpeedy;
+
+                if(ballx <= (ballSize + userx + padwidth)) {
+                    if(bally > usery && bally < (usery + padheight)) {
+                        ballSpeedx = -ballSpeedx;
+                        var deltay = bally - (usery + (padheight / 2));
+                        ballSpeedy = deltay;
+                    } else {
+                        if(ballx <= ballSize) {
+                            ballReset();
+                            compScore ++
+                        }
+                    }
+                } 
+                if(ballx > (compx - ballSize)) {
+                    if(bally > compy && bally < (compy + padheight)) {
+                        ballSpeedx = -ballSpeedx;
+                        var deltay = bally - (compy + (padheight / 2));
+                        ballSpeedy = deltay / 3;
+                    } else {
+                        if(ballx >= (screenWidth - ballSize)) {
+                            ballReset();
+                            userScore ++;
+                        }
+                    }
+                }
+                if(bally > (screenHeight - ballSize) || bally <= ballSize) {ballSpeedy = -ballSpeedy;}
+
+                drawCanvas(0, 0, screenWidth, screenHeight, 'black');
+                drawPad(userx, usery, padwidth, padheight, 'cyan');
+                drawPad(compx, compy, padwidth, padheight, 'cyan');
+                drawCircle(ballx, bally, ballSize, 'red');
+                drawNet(screenWidth / 2 - 1, 2, 20, 'white');
+                canvasContext.fillText('SCORE: ' + userScore, userScorex, userScorey);
+                canvasContext.fillText('SCORE: ' + compScore, compScorex, compScorey);
+
+                // compy = bally - (padheight / 2);
+                computerMovement();
+            }
+
+            function drawCanvas(posx, posy, width, height, color) {
+                canvasContext.fillStyle = color;
+                canvasContext.fillRect(posx, posy, width, height);
+            }
+            
+            function drawPad(posx, posy, width, height, color) {
+                canvasContext.fillStyle = color;
+                canvasContext.fillRect(posx, posy, width, height);
+            }
+            
+            function drawCircle(centerx, centery, radius, color) {
+                canvasContext.fillStyle = color;
+                canvasContext.beginPath();
+                canvasContext.arc(centerx, centery, radius, 0, Math.PI * 2, true);
+                canvasContext.fill();
+            }
+
+            function drawNet(posx, width, height, color) {
+                canvasContext.fillStyle = color;
+                for(var i = 10; i < screenHeight; i += 40) {
+                    canvasContext.fillRect(posx, i, width, height);
+                }
+            }
+
+            function calculateMousePos(event) {
+                var rect = canvas.getBoundingClientRect();
+                var root = document.documentElement;
+                var mousex = event.clientX - rect.left - root.scrollLeft;
+                var mousey = event.clientY - rect.top - root.scrollTop;
+
+                return ( {
+                    x: mousex,
+                    y: mousey
+                });
+            }
+
+            function computerMovement() {
+                if((compy + (padheight / 2)) < bally) {
+                    compy += 3;
+                } else {
+                    compy -= 3;
+                }
+            }
+
+            function ballReset() {
+                ballSpeedx = -ballSpeedx;
+                ballx = screenWidth / 2;
+                bally = screenHeight / 2;
+            }
+        </script>
+    </body>
+</html>
